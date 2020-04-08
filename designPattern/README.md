@@ -316,5 +316,113 @@ if (Memeber.getExpiryDate()) != null && member.getExpiryDate().getDate() < Syste
 
 ### 상속 사용 시기
 
-- 기능의 확자으이 개념에서 상속을 적용
+- 기능의 확장의 개념에서 상속을 적용
 - 명확하게 IS-A 관계 성립
+
+
+
+
+
+## 설계원칙 : SOLID
+
+- 단일 책임 원칙 : SRP
+- 개방-폐쇄의 원칙 : OCP
+- 리스코프 치환 원칙 : LSP
+- 인터페이스 분리 원칙 : ISP
+- 의존 역전 원칙 : DIP
+
+
+
+###	단일책임의 원칙
+
+- 클래스는 단 한 개의 책임을 가져야한다
+
+```java
+public class DataViewer {
+
+	public void display() {
+		String data = loadHtml();
+		updateGui(data);
+	}
+	
+	public String loadHtml() {
+		String url = "";
+		HttpClient client = new HttpClient();
+		client.connect(url);
+		return client.getResponse();
+	}
+	
+	private void updateGui(String data){
+		GuiData guiModel = parseDataToGuiData(data);
+		tableUI.changeData(guiModel);
+	}
+	
+	private GuiData parseDataToGuiData(String data) {
+		return new GuiData();
+	}
+}
+```
+
+- 현재 소스 상에서는 String을 GuiData로 변환
+- 만약 데이터가 String에서 byte배열로 변경되는 상황이면 다음과 같은 연쇄작용이 발생한다
+  - 읽어온 데이터 구조의 변화
+  - 파라미터 타입 변화
+  - GuiData 생성하는 코드 변화
+- 해결방안
+  - 데이터 읽기와 데이터를 화면에 보여주는 책임을 두 개의 클래스로 분리
+  - String 같은 저수준이 아닌 알맞게 추상화 된 타입을 사용
+- 단일 책임의 원칙을 어길 시 재사용을 어렵게 한다
+  - 필요하지 않는 패키지까지 필요하게 된다
+  - 만약 분리할 경우 필요한 클래스와 패키지만 사용 가능하다
+
+
+
+### 책임이란 변화에 대한 것
+
+- 단일 책임을 지키지 않았을 때 한 책임의 구현 변경에 의해 다른 책임과 관련된 코드가 변경될 가능성이 높다
+- 메서드를 실행하는 주체가 누구인지 확인하여 단일 책임의 원칙을 확인
+
+
+
+## 개방 폐쇄 원칙(Open-closed principle)
+
+- 확장에는 열려있어야하고 변경에는 닫혀 있어야 한다
+  - 기능을 변경하거나 확장할 수 있으면서
+  - 그 기능을 사용하는 코드는 수정하지 않는다
+- 추상화하여 개방 폐쇄 원칙을 구현할 수 있다.
+
+
+
+```java
+public class ResponseSender {
+
+	private Data data;
+	
+	public ResponseSender(Data data) {
+		this.data = data;
+	}
+	
+	
+	public Data getData() {
+		return data;
+	}
+	
+	public void Send() {
+		sendHeader();
+		sendBody();
+	}
+	
+	protected void sendHeader() {
+		
+	}
+	protected void sendBody(){
+		
+	}
+}
+
+```
+
+- 만약 여기에 추가적으로 압추하여 전달하는 기능을 추가하고 싶다면?
+  - 클래스를 상속받아 오버라이딩하면 된다.
+    - 기능을 변경하거나 확장에 문제가 없으며
+    - 기존에 사용하는 클래스에 영향을 주지 않는다.
