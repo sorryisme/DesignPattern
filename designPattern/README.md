@@ -480,4 +480,40 @@ public class ResponseSender {
   - 명시된 명세에서 벗어난 익셉션을 발생시킨다
   - 명시된 명세에서 벗어난 기능을 수행한다
 
+- 리스코프 치환 원칙을 어긴 예시
+
+```java
+public class Coupon {
+	public int calculateDiscountAmount(Item item){
+		return item.getPrice() * discountRate;
+	}
+}
+```
+
+- 무조건 할인해주지 않는 정책이 추가되어 Item을 상속받는 SpecialItem 클래스 추가
+
+```java
+public class Coupon {
+	public int calculateDiscountAmount(Item item){
+		if (item instanceof SpecialItem){ //LSP 위반
+			return 0;
+		}
+		return item.getPrice() * discountRate;
+	}
+}
+```
+
+- instanceof를 사용하는 것은 하위타입이 상위 타입을 대체할 수 없다는 것을 의미
+
+- 변화되는 기능을 상위 타입에 추가
+
+  ```javascript
+  public class Item {
+  	//상속 받아 오버라이딩 
+  	public boolean isDicountAvailable (){
+  		return true;
+  	}
+  }
+  ```
+
   
