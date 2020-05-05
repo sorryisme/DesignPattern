@@ -522,5 +522,106 @@ public class Coupon {
 ## 인터페이스 분리 원칙
 
 - 인터페이스는 인터페이스를 사용하는 클라이언트를 기준으로 분리해야한다.
+- 만약 게시글 목록/작성/삭제에 대한 모든 메서드를 하나의 인터페이스에서 제공하고 있다면?
+- 목록 관련 기능만 변경하더라도 작성, 삭제 메서드도 컴파일을 다시해야하는 상황이 발생한다
+- 클리이언트 입장에서 인터페이스를 분리해야한다
+  - AritcleService 인터페이스 변화가 게시글 목록 UI에 영향을 주지만 반대로 게시글 목록 UI의 요구로 인해 ArticleService 인터페이스가 변경될 수 있다.
+
+
+
+## 의존 역전 원칙
+
+- 고수준 모듈은 저수준 모듈의 구현에 의존해서 안된다
+- 저수준 모듈이 고수준 모듈에서 정의한 추상타입에 의존해야한다.
+
+
+
+- 고수준 모듈
+  - 바이트 데이터를 읽어와 암호화하고 결과 바이터 데이터를 쓴다
+  - 바이트 데이터를 암호화 한다는 것이 프로그램의 의미있는 단일 기능으로 고수준 모듈에 해당한다
+- 저수준 모듈
+  - 파일에서 바이트 데이터를 읽어온다
+  - AES 알고리즘으로 암호화한다.
+  - 파일에 바이트 데이터를 쓴다
+
+
+
+### 고수준 모듈이 저수준 모듈에 의존할 때 문제
+
+- 고수준모듈은 상대적으로 프로그램을 다룬다면 저수준 모듈은 개별 요소에 대해 어떻게 구현될지 다룬다
+- 프로그램이 변경되기 보다 상세 수준에서의 변경이 발생할 가능성이 높다
+
+
+
+다음과 같은 정책이 있다(고수준 모듈의 정책[잘 변하지 않는다])
+
+- 쿠폰을 적용해서 가격 할인을 받을 수 있다.
+- 쿠폰은 동시에 한개만 적용 가능하다.
+
+하지만 쿠폰은 상황에 따라 다양한 종류가 추가될 수 있다.
+
+
+
+### 의존 역전 원칙을 통한 변경 유연함 변경
+
+- 추상화를 통해 저수준 모듈이 고수준 모듈을 의존하게 만들 수 있다.
+- 인터페이스를 생성하여 소스코드의 의존을 역전할 수 있다. 
+
+
+
+## DI와 서비스 로케이터
+
+- 소프트웨어를 두 개의 영역 구분
+  - 고수준 정책 및 저수준 구현을 포함한 어플리케이션 영역
+  - 어플리케이션이 동작하도록 각 객체들을 연결해주는 메인 영역
+- 어플리케이션 영역과 메인 영역
+  - 파일 확장자를 이용해서 비디오 포맷을 변환
+  - 변환 요청을 등록하면 순차적으로 변환 작업 수행
+    - 변환 요청 정보는 파일 또는 DB를 이용해서 보관할 수 있어야한다
+  - 비디오 형식의 변환 처리는 오픈 소스인 ffmpeg을 이용하거나 구매 예정인 변환 솔루션을 사용할 수 있어야 한다
+  - 명령행에서 변환할 원본 파일과 변환 결과로 생성될 파일을 입력한다
+
+
+
+```
+public class Worker {
+	public void run(){
+		JobQueue jobQueue = ...; // JobQueue를 구한다
+		Transcoder transcoder = ...; // Transcoder를 구한다
+	
+	}
+
+}
+```
+
+
+
+- 실제 객체를 구하기 위해 Locator를 사용
+
+  ```java
+  public class Locator {
+  	private static Locator instance;
+  	
+  	public static Locator getinstance(){
+  		return instace;
+  	}
+  	
+  	public static void init(Locator locator){
+  		this.instance = locator;
+  	}
+  	
+  	private JobQueue jobQueue;
+  	private Transcoder transcoder;
+    
+  	public Locator(JobQueue jobQueue, Transcoder transcoder){
+  		this.jobQueue = jobQueue;
+  		this.transcoder = transcoder;
+  	}
+  	
+  	public Jobqueue getJobQueue(){ return jobQueue;}
+  	public Transcoder getTranscoder(){ return transcoder; }
+  		
+  }
+  ```
 
   
