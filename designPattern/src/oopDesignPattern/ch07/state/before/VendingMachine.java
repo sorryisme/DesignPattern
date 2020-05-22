@@ -1,7 +1,7 @@
 package oopDesignPattern.ch07.state.before;
 
 public class VendingMachine {
-	public static enum State { NOCOIN, SELECTABLE}
+	public static enum State { NOCOIN, SELECTABLE, SOLDOUT}
 	private State state = State.NOCOIN;
 	
 	public void insertCoin (int coin) {
@@ -13,6 +13,8 @@ public class VendingMachine {
 				
 			case SELECTABLE:
 				increaseCoin(coin);
+			case SOLDOUT:
+			    returnCoin();
 		}
 	}
 	
@@ -26,7 +28,8 @@ public class VendingMachine {
 				decreaseCoin();
 				if(hasNoCoin())
 					state = State.NOCOIN;
-		
+			case SOLDOUT:
+			    //아무것도 하지 않음
 		}
 	}
 	
@@ -41,5 +44,9 @@ public class VendingMachine {
 	}
 	private boolean hasNoCoin() {
 		return true;
+	}
+	
+	private void returnCoin() {
+	    
 	}
 }
